@@ -840,4 +840,27 @@ class WhatsAppEvent
         $this->fireCallback($callbackEvent);
     }
 
+    function fireGetServicePricing(
+        $phone,
+        $price,
+        $cost,
+        $currency,
+        $expiration
+    ) {
+        $callbackEvent = function(WhatsAppEventListener $listener) use ($phone, $price, $cost, $currency, $expiration) {
+            $listener->onGetServicePricing($phone, $price, $cost, $currency, $expiration);
+        };
+        $this->fireCallback($callbackEvent);
+    }
+
+    function fireGetNormalizedJid(
+        $phone,
+        $result
+    ) {
+        $callbackEvent = function(WhatsAppEventListener $listener) use ($phone, $result) {
+            $listener->onGetNormalizedJid($phone, $result);
+        };
+        $this->fireCallback($callbackEvent);
+    }
+
 }

@@ -860,6 +860,70 @@ class WhatsProt
         $this->sendNode($node);
     }
 
+	/**
+	* Send a request to get the current service pricing
+	*
+	*  @param string $lg
+	*   Language
+	*  @param string $lc
+	*   Country
+	*/
+	public function sendGetServicePricing($lg, $lc)
+	{
+		$msgId = $this->createMsgId("get_service_pricing_");
+		$pricingNode = new ProtocolNode("pricing", array(
+			"lg" => $lg,
+			"lc" => $lc
+		), null, null);
+		$node = new ProtocolNode("iq", array(
+			"id" => $msgId,
+			"xmlns" => "urn:xmpp:whatsapp:account",
+			"type" => "get",
+			"to" => "s.whatsapp.net"
+			), array($pricingNode), null);
+		$this->sendNode($node);
+	}
+	
+	/**
+	* Send a request to get the normalized mobile number respresenting the JID
+	*
+	*  @param string $countryCode
+	*   Contry Code
+	*  @param string $number
+	*   Mobile Number
+	*/
+	public function sendGetNormalizedJid($countryCode, $number)
+	{
+		$msgId = $this->createMsgId("get_normalized_jid_");
+		$ccNode = new ProtocolNode("cc", null, null, $countryCode);
+		$inNode = new ProtocolNode("in", null, null, $number);
+		$normalizeNode = new ProtocolNode("normalize", null, array($ccNode, $inNode), null);
+		$node = new ProtocolNode("iq", array(
+			"id" => $msgId,
+			"xmlns" => "urn:xmpp:whatsapp:account",
+			"type" => "get",
+			"to" => "s.whatsapp.net"
+			), array($normalizeNode), null);
+		$this->sendNode($node);
+	}
+
+
+  /**
+  * Send a ping to the server
+  */
+	public function sendPing()
+  {
+    $msgId = $this->createMsgId("ping_");
+    $pingNode = new ProtocolNode("ping", null, null, null);
+    $node = new ProtocolNode("iq", array(
+      "id" => $msgId,
+      "xmlns" => "w:p",
+      "type" => "get",
+      "to" => "s.whatsapp.net"
+    ), array($pingNode), null);
+    $this->sendNode($node);
+  }
+
     /**
      * Get the current status message of a specific user.
      *
@@ -2347,6 +2411,23 @@ class WhatsProt
                         $groupList
                     );
                 }
+            }
+            if($node->getChild("pricing") != null)
+            {
+              $this->eventManager()->fireGetServicePricing(
+                $this->phoneNumber,
+                $node->getChild(0)->getAttribute("price"),
+                $node->getChild(0)->getAttribute("cost"),
+                $node->getChild(0)->getAttribute("currency"),
+                $node->getChild(0)->getAttribute("expiration")
+              );
+            }
+            if($node->getChild("normalize") != null)
+            {
+              $this->eventManager()->fireGetNormalizedJid(
+                $this->phoneNumber,
+                $node->getChild(0)->getAttribute("result")
+              );
             }
             if($node->getChild("status") != null)
             {

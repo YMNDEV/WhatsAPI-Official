@@ -411,6 +411,23 @@ abstract class WhatsAppEventListenerProxy implements WhatsAppEventListener {
         $this->handleEvent(__FUNCTION__, func_get_args());
     }
 
+    function onGetServicePricing(
+        $phone,
+        $price,
+        $cost,
+        $currency,
+        $expiration
+    ) {
+        $this->handleEvent(__FUNCTION__, func_get_args());
+    }
+
+    function onGetNormalizedJid(
+        $phone,
+        $result
+    ) {
+        $this->handleEvent(__FUNCTION__, func_get_args());
+    }
+
     function onPing(
         $phone,
         $msgid
